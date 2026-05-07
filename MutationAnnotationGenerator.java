@@ -6,6 +6,7 @@ import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotation;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationInterval;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAlignmentDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationQualifier;
+import java.util.Arrays;
 
 import jebl.util.ProgressListener;
 
@@ -44,8 +45,8 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
 
     // method given above method utilizes multiple sequences
-    public java.util.List<SequenceAnnotationGenerator.AnnotationGeneratorResultOnAlignment> 
-        generateOnAlignments​(AnnotatedPluginDocument[] documents, jebl.util.ProgressListener progressListener, 
+    public List<List<SequenceAnnotation>>
+        generateAnnotations(AnnotatedPluginDocument[] documents, ProgressListener progressListener,
                 Options options) throws com.biomatters.geneious.publicapi.plugin.DocumentOperationException {
         
         // extract alignment doc (eg. primary alignment)
@@ -84,11 +85,6 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
         }
 
-        SequenceAnnotationGenerator.AnnotationGeneratorResult result = 
-            new SequenceAnnotationGenerator.AnnotationGeneratorResult(mutationAnnotations);
-
-        return Collections.singletonList(
-            new SequenceAnnotationGenerator.AnnotationGeneratorResultOnAlignment(
-                Collections.singletonList(result)));
+        return Arrays.asList(mutationAnnotations);
     }
 }
