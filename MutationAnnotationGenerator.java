@@ -6,7 +6,6 @@ import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotation;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationInterval;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAlignmentDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationQualifier;
-import com.biomatters.geneious.publicapi.plugin.SequenceAnnotationGenerator.SelectionRange;
 
 import java.util.Arrays;
 
@@ -89,6 +88,9 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
         }
 
-        return Arrays.asList(mutationAnnotations);
+        // method given two sequences, must return two sequence annotation lists
+        List<SequenceAnnotation> emptyList = new ArrayList<>();
+
+        return Arrays.asList(emptyList, mutationAnnotations);
     }
 }
