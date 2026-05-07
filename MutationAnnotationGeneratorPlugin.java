@@ -14,7 +14,7 @@ public class MutationAnnotationGeneratorPlugin extends GeneiousPlugin {
     }
 
     public String getName() {
-        return "MutationAnnotationGeneratorPlugin";
+        return "Mutation Annotation Generator Plugin";
     }
 
     public String getHelp() {

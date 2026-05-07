@@ -7,6 +7,8 @@ import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationIn
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAlignmentDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationQualifier;
 
+import java.util.Arrays;
+
 import jebl.util.ProgressListener;
 
 import java.util.*;
@@ -44,9 +46,11 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
 
     // method given above method utilizes multiple sequences
-    public java.util.List<SequenceAnnotationGenerator.AnnotationGeneratorResultOnAlignment> 
-        generateOnAlignments​(AnnotatedPluginDocument[] documents, jebl.util.ProgressListener progressListener, 
-                Options options) throws com.biomatters.geneious.publicapi.plugin.DocumentOperationException {
+    public List<List<SequenceAnnotation>>
+        generateAnnotations(AnnotatedPluginDocument[] documents, 
+                SequenceAnnotationGenerator.SelectionRange selectionRange,
+                    ProgressListener progressListener, Options options) 
+                        throws DocumentOperationException {
         
         // extract alignment doc (eg. primary alignment)
         SequenceAlignmentDocument alignment = (SequenceAlignmentDocument)documents[0].getDocument();
@@ -84,11 +88,9 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
         }
 
-        SequenceAnnotationGenerator.AnnotationGeneratorResult result = 
-            new SequenceAnnotationGenerator.AnnotationGeneratorResult(mutationAnnotations);
+        // method given two sequences, must return two sequence annotation lists
+        List<SequenceAnnotation> emptyList = new ArrayList<>();
 
-        return Collections.singletonList(
-            new SequenceAnnotationGenerator.AnnotationGeneratorResultOnAlignment(
-                Collections.singletonList(result)));
+        return Arrays.asList(emptyList, mutationAnnotations);
     }
 }
