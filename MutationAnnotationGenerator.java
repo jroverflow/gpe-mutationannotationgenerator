@@ -6,6 +6,8 @@ import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotation;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationInterval;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAlignmentDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationQualifier;
+import com.biomatters.geneious.publicapi.plugin.SequenceAnnotationGenerator.SelectionRange;
+
 import java.util.Arrays;
 
 import jebl.util.ProgressListener;
