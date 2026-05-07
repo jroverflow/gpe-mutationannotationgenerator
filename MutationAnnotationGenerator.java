@@ -46,8 +46,10 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
     // method given above method utilizes multiple sequences
     public List<List<SequenceAnnotation>>
-        generateAnnotations(AnnotatedPluginDocument[] documents, ProgressListener progressListener,
-                Options options) throws com.biomatters.geneious.publicapi.plugin.DocumentOperationException {
+        generateAnnotations(AnnotatedPluginDocument[] documents, 
+                SequenceAnnotationGenerator.SelectionRange selectionRange,
+                    ProgressListener progressListener, Options options) 
+                        throws DocumentOperationException {
         
         // extract alignment doc (eg. primary alignment)
         SequenceAlignmentDocument alignment = (SequenceAlignmentDocument)documents[0].getDocument();
