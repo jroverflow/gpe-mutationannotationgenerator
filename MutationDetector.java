@@ -27,13 +27,13 @@ public class MutationDetector {
             // deletion in query
             if (r != '-' && q == '-') {
                 Mutation temp = new Mutation(i, String.valueOf(r), String.valueOf(q));
-                temp.setDescription("Insertion (" + q + ")");       // of format "Insertion (Base)"
+                temp.setDescription("Deletion (" + q + ")");       // of format "Deletion (Base)"
                 mutations.add(temp);
             }
             // insertion in query
             else if (r == '-' && q != '-') {
                 Mutation temp = new Mutation(i, String.valueOf(r), String.valueOf(q));
-                temp.setDescription("Deletion (" + q + ")");       // of format "Deletion (Base)"
+                temp.setDescription("Insertion (" + q + ")");       // of format "Insetion (Base)"
                 mutations.add(temp);
             }
             // mismatch in bp
