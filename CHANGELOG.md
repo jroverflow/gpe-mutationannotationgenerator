@@ -1,6 +1,6 @@
 # Changelog
 
-$$ [0.2] = 2026-05-06
+## [0.2] = 2026-05-06
 ### What's New
 - Updated MutationDetector.java functionality to include SNP insertions and deletions
 - Fixed method signatures throwing errors

@@ -31,7 +31,7 @@ public class MutationAnnotationGeneratorPlugin extends GeneiousPlugin {
     }
 
     public String getVersion() {
-        return "0.1";
+        return "0.2";
     }
 
     public String getMinimumApiVersion() {

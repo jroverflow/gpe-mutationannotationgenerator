@@ -23,10 +23,21 @@ public class MutationDetector {
             char q = queryAligned.charAt(i);
 
             // duplicate gaps okay
-            if (r == '-' || q == '-') continue;
-
+            if (r == '-' && q == '-') continue;
+            // deletion in query
+            if (r != '-' && q == '-') {
+                Mutation temp = new Mutation(i, String.valueOf(r), String.valueOf(q));
+                temp.setDescription("Deletion (" + q + ")");       // of format "Deletion (Base)"
+                mutations.add(temp);
+            }
+            // insertion in query
+            else if (r == '-' && q != '-') {
+                Mutation temp = new Mutation(i, String.valueOf(r), String.valueOf(q));
+                temp.setDescription("Insertion (" + q + ")");       // of format "Insetion (Base)"
+                mutations.add(temp);
+            }
             // mismatch in bp
-            if (r != q) {
+            else if (r != q) {
                 mutations.add(new Mutation(i + 1, String.valueOf(r), String.valueOf(q)));
             }
         }
