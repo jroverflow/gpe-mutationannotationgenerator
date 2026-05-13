@@ -24,20 +24,8 @@ public class MutationDetector {
 
             // duplicate gaps okay
             if (r == '-' && q == '-') continue;
-            // deletion in query
-            if (r != '-' && q == '-') {
-                Mutation temp = new Mutation(i + 1, String.valueOf(r), String.valueOf(q));
-                temp.setDescription("Deletion (" + r + ")");       // of format "Deletion (Base)"
-                mutations.add(temp);
-            }
-            // insertion in query
-            else if (r == '-' && q != '-') {
-                Mutation temp = new Mutation(i + 1, String.valueOf(r), String.valueOf(q));
-                temp.setDescription("Insertion (" + q + ")");       // of format "Insetion (Base)"
-                mutations.add(temp);
-            }
-            // mismatch in bp
-            else if (r != q) {
+            // change in query
+            if (r != q) {
                 mutations.add(new Mutation(i + 1, String.valueOf(r), String.valueOf(q)));
             }
         }

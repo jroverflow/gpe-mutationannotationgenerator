@@ -7,8 +7,6 @@ import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationIn
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAlignmentDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationQualifier;
 
-import java.util.Arrays;
-
 import jebl.util.ProgressListener;
 
 import java.util.*;
@@ -71,8 +69,16 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
             SequenceAnnotationInterval position = new SequenceAnnotationInterval(
                 m.getPosition(),            
                 m.getPosition());
+            if (m.getDescription().contains("-")) {
+                if (m.getRefBase() == "-") {
+                    m.setDescription("Insertion(" + m.getRefBase() + ")");
+                }
+                else if (m.getAltBase() == "-") {
+                    m.setDescription("Deletion(" + m.getAltBase() + ")");
+                }
+            }
             SequenceAnnotation annotation = new SequenceAnnotation(
-                m.getDescription(),         // of format "Base1>Base2"
+                m.getDescription(),         // of either format Base1>Base2, Insertion(Base), Deletion(Base)
                 SequenceAnnotation.TYPE_POLYMORPHISM,          // Indicates polymorphism 
                 position);                  // Indicates position
             
