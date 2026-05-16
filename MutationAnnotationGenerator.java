@@ -1,6 +1,7 @@
 package com.biomatters.exampleSequenceAnnotationGeneratorPlugin;
 
 import com.biomatters.geneious.publicapi.plugin.*;
+import com.biomatters.geneious.publicapi.utilities.SequenceUtilities;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotation;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationInterval;
@@ -53,11 +54,19 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
         // extract alignment doc (eg. primary alignment)
         SequenceAlignmentDocument alignment = (SequenceAlignmentDocument)documents[0].getDocument();
 
+        // sanity check for reverse of query
+        boolean isReversed = alignment.isReferencedDocumentReversed(1);
+
         // extract ref and sequenced files
         String refAligned = 
             alignment.getSequence(0).getSequenceString();
         String queryAligned = 
             alignment.getSequence(1).getSequenceString();
+        
+        // adapt query if reverse
+        if (isReversed) {
+            queryAligned = SequenceUtilities.reverseComplement(queryAligned).toString();
+        }
 
         // utilize MutationDetector.java logic for compiled list
         List<Mutation> mutations = MutationDetector.detectSNPs(refAligned, queryAligned);
@@ -66,19 +75,19 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
         // later utilize TYPE_EDITING_HISTORY... for further logic, for now will utilize TYPE_POLYMORPHISM
         List<SequenceAnnotation> mutationAnnotations = new ArrayList<>();
         for (Mutation m: mutations) {
-            SequenceAnnotationInterval position = new SequenceAnnotationInterval(
+            SequenceAnnotationInterval position;
+            if (isReversed) {
+                position = new SequenceAnnotationInterval(
+                    m.getPosition() + 1, 
+                    m.getPosition());
+            }
+            else {
+                position = new SequenceAnnotationInterval(
                 m.getPosition(),            
                 m.getPosition());
-            if (m.getDescription().contains("-")) {
-                if (m.getRefBase() == "-") {
-                    m.setDescription("Insertion(" + m.getRefBase() + ")");
-                }
-                else if (m.getAltBase() == "-") {
-                    m.setDescription("Deletion(" + m.getAltBase() + ")");
-                }
             }
             SequenceAnnotation annotation = new SequenceAnnotation(
-                m.getDescription(),         // of either format Base1>Base2, Insertion(Base), Deletion(Base)
+                m.getDescription(),         // of format "Base1>Base2"
                 SequenceAnnotation.TYPE_POLYMORPHISM,          // Indicates polymorphism 
                 position);                  // Indicates position
             
