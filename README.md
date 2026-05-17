@@ -5,7 +5,8 @@ Simple Geneious Prime Extension automatically creating SNP annotations
 
 | Version | Release Date |
 |---|---|
-| [0.2](https://github.com/jroverflow/gpe-mutationannotationgenerator/releases/download/Releases/MutationAnnotationGenerator.gplugin) | May 6,-2026 |
+|[0.3]() | May 17, 2026 |
+| [0.2](https://github.com/jroverflow/gpe-mutationannotationgenerator/releases/download/Releases/MutationAnnotationGenerator.gplugin) | May 6,2026 |
 
 Keep up to date with updates with the [updates log](CHANGELOG.md)
 
