@@ -51,75 +51,74 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
                 SequenceAnnotationGenerator.SelectionRange selectionRange,
                     ProgressListener progressListener, Options options) 
                         throws DocumentOperationException {
-        
-        // extract alignment doc (eg. primary alignment)
-        SequenceAlignmentDocument alignment = (SequenceAlignmentDocument)documents[0].getDocument();
+    // extract alignment doc
+    SequenceAlignmentDocument alignment =
+        (SequenceAlignmentDocument) documents[0].getDocument();
 
-        // extract ref and sequenced files
-        String refAligned = 
-            alignment.getSequence(0).getSequenceString();
-        String queryAligned = 
-            alignment.getSequence(1).getSequenceString();
+    // check strand direction of query sequence
+    boolean isReversed = alignment.isReferencedDocumentReversed(1);
 
-        // Checking reverse strand
-        String queryReversed = SequenceUtilities.reverseComplement(queryAligned).toString();
+    // extract sequences
+    String refAligned = alignment.getSequence(0).getSequenceString().toUpperCase();
+    String queryAligned = alignment.getSequence(1).getSequenceString().toUpperCase();
 
-        // utilize MutationDetector.java logic for compiled list
-        // added reverse mutations in a separate list
-        List<Mutation> forwardMutations = MutationDetector.detectSNPs(refAligned, queryAligned);
-        List<Mutation> reverseMutations = MutationDetector.detectSNPs(refAligned, queryReversed);
+    // reverse complement query if on reverse strand
+    if (isReversed) {
+        queryAligned = SequenceUtilities.reverseComplement(queryAligned).toString();
+    }
 
-        // convert to geneious SequenceAnnotation type
-        // later utilize TYPE_EDITING_HISTORY... for further logic, for now will utilize TYPE_POLYMORPHISM
-        List<SequenceAnnotation> mutationAnnotations = new ArrayList<>();
-        
-        // forward strand pass
-        for (Mutation m: forwardMutations) {
-            SequenceAnnotationInterval position = new SequenceAnnotationInterval(
-                m.getPosition(), 
+    // find where query coverage actually starts and ends
+    int queryStart = 0;
+    while (queryStart < queryAligned.length() && queryAligned.charAt(queryStart) == '-') {
+        queryStart++;
+    }
+    int queryEnd = queryAligned.length() - 1;
+    while (queryEnd >= 0 && queryAligned.charAt(queryEnd) == '-') {
+        queryEnd--;
+    }
+
+    // detect mutations on full aligned sequences (no trimming, no offset issues)
+    List<Mutation> mutations = MutationDetector.detectSNPs(refAligned, queryAligned);
+
+    // filter out mutations outside query coverage region
+    List<Mutation> filteredMutations = new ArrayList<>();
+    for (Mutation m : mutations) {
+        int pos = m.getPosition() - 1; // convert to 0-based for comparison
+        if (pos >= queryStart && pos <= queryEnd) {
+            filteredMutations.add(m);
+        }
+    }
+
+    // convert to annotations
+    List<SequenceAnnotation> mutationAnnotations = new ArrayList<>();
+    for (Mutation m : filteredMutations) {
+        SequenceAnnotationInterval position;
+        if (isReversed) {
+            position = new SequenceAnnotationInterval(
+                m.getPosition() + 1,
                 m.getPosition());
-            SequenceAnnotation annotation = new SequenceAnnotation(
-                m.getDescription(),         // of format "Base1>Base2"
-                SequenceAnnotation.TYPE_POLYMORPHISM,          // Indicates polymorphism 
-                position);                  // Indicates position
-            
-            // optional qualifiers added
-            annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_CHANGE, 
-                m.getDescription());
-            annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_NUCLEOTIDES, 
-                m.getAltBase());
-            annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_REFERENCE_NUCLEOTIDES, 
-                m.getRefBase());
-            
-            mutationAnnotations.add(annotation);
+        } else {
+            position = new SequenceAnnotationInterval(
+                m.getPosition(),
+                m.getPosition());
         }
 
-        // reverse strand pass
-        for (Mutation m: reverseMutations) {
-            int revPosition = refAligned.length() - m.getPosition() + 1;
-            SequenceAnnotationInterval position = new SequenceAnnotationInterval(
-                revPosition + 1, 
-                revPosition);
-            SequenceAnnotation annotation = new SequenceAnnotation(
-                m.getDescription(),         // of format "Base1>Base2"
-                SequenceAnnotation.TYPE_POLYMORPHISM,          // Indicates polymorphism 
-                position);                  // Indicates position
-            
-            // optional qualifiers added
-            annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_CHANGE, 
-                m.getDescription());
-            annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_NUCLEOTIDES, 
-                m.getAltBase());
-            annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_REFERENCE_NUCLEOTIDES, 
-                m.getRefBase());
-            
-            mutationAnnotations.add(annotation);
+        SequenceAnnotation annotation = new SequenceAnnotation(
+            m.getDescription(),
+            SequenceAnnotation.TYPE_POLYMORPHISM,
+            position);
 
-        }
+        annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_CHANGE,
+            m.getDescription());
+        annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_NUCLEOTIDES,
+            m.getAltBase());
+        annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_REFERENCE_NUCLEOTIDES,
+            m.getRefBase());
 
-        // method given two sequences, must return two sequence annotation lists
-        List<SequenceAnnotation> emptyList = new ArrayList<>();
+        mutationAnnotations.add(annotation);
+    }
 
-        return Arrays.asList(emptyList, mutationAnnotations);
+    List<SequenceAnnotation> emptyList = new ArrayList<>();
+    return Arrays.asList(emptyList, mutationAnnotations);
     }
 }
