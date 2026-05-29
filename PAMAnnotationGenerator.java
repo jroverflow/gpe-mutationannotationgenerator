@@ -2,6 +2,9 @@ package com.biomatters.exampleSequenceAnnotationGeneratorPlugin;
 
 import com.biomatters.geneious.publicapi.plugin.*;
 import com.biomatters.geneious.publicapi.documents.AnnotatedPluginDocument;
+import com.biomatters.geneious.publicapi.documents.DocumentUtilities;
+import com.biomatters.geneious.publicapi.documents.MalformedURNException;
+import com.biomatters.geneious.publicapi.documents.URN;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotation;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationInterval;
 import com.biomatters.geneious.publicapi.documents.sequence.NucleotideSequenceDocument;
@@ -53,21 +56,81 @@ public class PAMAnnotationGenerator extends SequenceAnnotationGenerator {
         
         // extract sequence doc
         NucleotideSequenceDocument sequence = 
-            (NucleotideSequenceDocument)documents[0].getDocument();
-        
+            (NucleotideSequenceDocument)documents[0].getDocument();  
+        String refSequence = sequence.getSequenceString().toUpperCase();      
         
         // extract annotations from sequence
         List<SequenceAnnotation> annotations = sequence.getSequenceAnnotations();
+        // compiled list of mutations to return
+         List<SequenceAnnotation> snpAnnotations = new ArrayList<>();
 
-        // build string first, then throw
-        StringBuilder sb = new StringBuilder();
         for (SequenceAnnotation annotation : annotations) {
-            sb.append("annotation: ").append(annotation.getName())
-              .append(" type: ").append(annotation.getType())
-              .append("\n");
+            // extract primary match (in user database)
+            String primaryMatch = annotation.getQualifierValue("Primary Match");
+            // not found -> continue
+            if (primaryMatch == null) continue;
+
+            // parse URN from PM qualifier value
+            String urnString = null;
+            int start = primaryMatch.lastIndexOf('(');
+            int end = primaryMatch.lastIndexOf(')');
+            if (start >= 0 && end > start) {
+                urnString = primaryMatch.substring(start + 1, end).trim();
+            }
+            if (urnString == null || !urnString.startsWith("urn:")) continue;
+
+            URN urn;
+            try {
+                urn = new URN(urnString);
+            } catch (MalformedURNException e) {
+                continue;
+            }
+
+            // annotation sequences to compare query against
+            List<AnnotatedPluginDocument> sourceDocs =
+                    DocumentUtilities.getDocumentsByURN(
+                            Collections.singletonList(urn), false);
+            if (sourceDocs == null || sourceDocs.isEmpty() || sourceDocs.get(0) == null) continue;
+
+            NucleotideSequenceDocument sourceDoc =
+                    (NucleotideSequenceDocument) sourceDocs.get(0).getDocument();
+            String sourceSequence = sourceDoc.getSequenceString().toUpperCase();
+
+            SequenceAnnotationInterval interval = annotation.getIntervals().get(0);
+            int annotationStart = interval.getMinimumIndex();
+            int annotationEnd = interval.getMaximumIndex();
+
+            String targetSequence = refSequence.substring(annotationStart - 1, annotationEnd);
+
+            if (sourceSequence.length() != targetSequence.length()) continue;
+
+            List<Mutation> mutations;
+            try {
+                mutations = MutationDetector.detectSNPs(sourceSequence, targetSequence);
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+
+            for (Mutation m : mutations) {
+                int absolutePosition = annotationStart + m.getPosition() - 1;
+                SequenceAnnotationInterval snpInterval =
+                        new SequenceAnnotationInterval(absolutePosition, absolutePosition);
+                SequenceAnnotation snp = new SequenceAnnotation(
+                        m.getDescription(),
+                        SequenceAnnotation.TYPE_POLYMORPHISM,
+                        snpInterval);
+                snp.addQualifier(SequenceAnnotationQualifier.VARIANT_CHANGE,
+                        m.getDescription());            // depending on type, will be either of B1>B2, Insertion(B), Deletion(B)
+                snp.addQualifier(SequenceAnnotationQualifier.VARIANT_NUCLEOTIDES,
+                        m.getAltBase());
+                snp.addQualifier(SequenceAnnotationQualifier.VARIANT_REFERENCE_NUCLEOTIDES,
+                        m.getRefBase());
+                snpAnnotations.add(snp);
+            }
         }
 
-        throw new DocumentOperationException(sb.toString());
+        // for method signature
+        return Arrays.asList(snpAnnotations);
 
         
     }
