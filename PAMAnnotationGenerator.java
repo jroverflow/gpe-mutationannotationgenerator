@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * General class for finding SNPs on Manually Annotated
  * 
- * @author Janicka Lopez
+ * @author 
  */
 
 public class PAMAnnotationGenerator extends SequenceAnnotationGenerator {
@@ -57,12 +57,26 @@ public class PAMAnnotationGenerator extends SequenceAnnotationGenerator {
         // extract sequence doc
         NucleotideSequenceDocument sequence = 
             (NucleotideSequenceDocument)documents[0].getDocument();  
-        String refSequence = sequence.getSequenceString().toUpperCase();      
+        String refSequence = sequence.getSequenceString().toUpperCase();
+        
         
         // extract annotations from sequence
         List<SequenceAnnotation> annotations = sequence.getSequenceAnnotations();
         // compiled list of mutations to return
-         List<SequenceAnnotation> snpAnnotations = new ArrayList<>();
+        List<SequenceAnnotation> snpAnnotations = new ArrayList<>();
+
+        for (SequenceAnnotation annotation : annotations) {
+        String pma = annotation.getQualifierValue("Primary Match Alignment");
+        if (pma != null) {
+            throw new DocumentOperationException(
+                "PMA length=" + pma.length() + 
+                " PMA bytes=" + Arrays.toString(pma.getBytes()) +
+                " PMA value='" + pma + "'");
+        }
+        }
+        throw new DocumentOperationException("Primary Match Alignment qualifier not found");
+
+        /*
 
         for (SequenceAnnotation annotation : annotations) {
             // extract primary match (in user database)
@@ -131,6 +145,7 @@ public class PAMAnnotationGenerator extends SequenceAnnotationGenerator {
 
         // for method signature
         return Arrays.asList(snpAnnotations);
+        */
 
         
     }
