@@ -7,8 +7,6 @@ import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationIn
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAlignmentDocument;
 import com.biomatters.geneious.publicapi.documents.sequence.SequenceAnnotationQualifier;
 
-import java.util.Arrays;
-
 import jebl.util.ProgressListener;
 
 import java.util.*;
@@ -32,7 +30,7 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
     public Options getOptions(AnnotatedPluginDocument[] documents, 
         SelectionRange selectionRange) throws DocumentOperationException {
-            // Provides all the options displayed to the user. 
+            // Provides all the options displayed to the user. Here, none.
         return null;
     }
 
@@ -60,9 +58,65 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
             alignment.getSequence(0).getSequenceString();
         String queryAligned = 
             alignment.getSequence(1).getSequenceString();
+        
+        // get seq annotations from ref file
+        List<SequenceAnnotation> compiledAnnotations = 
+        alignment.getSequence(0).getSequenceAnnotations();
 
-        // utilize MutationDetector.java logic for compiled list
-        List<Mutation> mutations = MutationDetector.detectSNPs(refAligned, queryAligned);
+        // compiling both forward and reverse annotations, pass through each separately
+        List<int[]> forwardAnnotations = new ArrayList<>();
+        List<int[]> reverseAnnotations = new ArrayList<>();
+        List<Mutation> mutations = new ArrayList<>();       // compiled mutations for annotation generator
+
+        // designating annotation intervals as either F or R
+        for (SequenceAnnotation seqA: compiledAnnotations) {
+            SequenceAnnotationInterval interval = seqA.getInterval();
+            int start = interval.getMinimumIndex();
+            int end = interval.getMaximumIndex();
+            SequenceAnnotationInterval.Direction direction = interval.getDirection();
+            if (direction.isDirectedLeft()) {
+                reverseAnnotations.add(new int[]{start, end});
+            }
+            else {
+                forwardAnnotations.add(new int[]{start, end});
+            }
+        }
+
+        // accounting for --- queries at beginning sequence
+        int queryStart = 0;
+        int queryEnd = queryAligned.length() - 1;
+        while (queryStart < queryAligned.length() && queryAligned.charAt(queryStart) == '-') {
+            queryStart++;
+        }
+        while (queryEnd >= 0 && queryAligned.charAt(queryEnd) == '-') {
+            queryEnd--;
+        }
+
+        // compiled mutations
+        List<Mutation> forwardMutations = new ArrayList<>();
+        List<Mutation> reverseMutations = new ArrayList<>();
+
+        // forward strand run
+        // later, include optionality for user input
+        for (int[] intervals: forwardAnnotations) {
+            String tempRefString = refAligned.substring(intervals[0], intervals[1] - 1);
+            String tempQueryString = queryAligned.substring(intervals[0], intervals[1]);
+            forwardMutations = MutationDetector.detectSNPs(tempRefString, tempQueryString);
+        }
+        // reverse strand run
+        for (int[] intervals: reverseAnnotations) {
+            String tempRefString = refAligned.substring(intervals[0], intervals[1] - 1);
+            String tempQueryString = queryAligned.substring(intervals[0], intervals[1]);
+            reverseMutations = MutationDetector.detectSNPs(tempRefString, tempQueryString);
+        }
+
+        for (Mutation mut: forwardMutations) {
+            mutations.add(mut);
+        }
+        for (Mutation muts: reverseMutations) {
+            mutations.add(muts);
+        }
+
 
         // convert to geneious SequenceAnnotation type
         // later utilize TYPE_EDITING_HISTORY... for further logic, for now will utilize TYPE_POLYMORPHISM
