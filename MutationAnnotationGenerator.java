@@ -100,13 +100,13 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
         // later, include optionality for user input
         for (int[] intervals: forwardAnnotations) {
             String tempRefString = refAligned.substring(intervals[0], intervals[1] - 1);
-            String tempQueryString = queryAligned.substring(intervals[0], intervals[1]);
+            String tempQueryString = queryAligned.substring(intervals[0], intervals[1] - 1);
             forwardMutations = MutationDetector.detectSNPs(tempRefString, tempQueryString);
         }
         // reverse strand run
         for (int[] intervals: reverseAnnotations) {
             String tempRefString = refAligned.substring(intervals[0], intervals[1] - 1);
-            String tempQueryString = queryAligned.substring(intervals[0], intervals[1]);
+            String tempQueryString = queryAligned.substring(intervals[0], intervals[1] - 1);
             reverseMutations = MutationDetector.detectSNPs(tempRefString, tempQueryString);
         }
 
