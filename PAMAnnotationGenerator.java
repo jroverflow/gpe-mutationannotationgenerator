@@ -66,15 +66,17 @@ public class PAMAnnotationGenerator extends SequenceAnnotationGenerator {
         List<SequenceAnnotation> snpAnnotations = new ArrayList<>();
 
         for (SequenceAnnotation annotation : annotations) {
-        String pma = annotation.getQualifierValue("Primary Match Alignment");
-        if (pma != null) {
-            throw new DocumentOperationException(
-                "PMA length=" + pma.length() + 
-                " PMA bytes=" + Arrays.toString(pma.getBytes()) +
-                " PMA value='" + pma + "'");
+            String primaryMatch = annotation.getQualifierValue("Primary Match");
+            if (primaryMatch != null) {
+                byte[] bytes = primaryMatch.getBytes();
+                StringBuilder sb = new StringBuilder();
+                sb.append("length=").append(bytes.length).append(" bytes=");
+            for (byte b : bytes) {
+                sb.append(b).append(",");
+            }
+            throw new DocumentOperationException(sb.toString());
+            }
         }
-        }
-        throw new DocumentOperationException("Primary Match Alignment qualifier not found");
 
         /*
 
