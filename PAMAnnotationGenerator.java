@@ -16,7 +16,7 @@ import jebl.util.ProgressListener;
 import java.util.*;
 
 /**
- * General class for finding SNPs on Manually Annotated
+ * General class for finding SNPs on Manually Annotated sequences
  * 
  * @author 
  */
