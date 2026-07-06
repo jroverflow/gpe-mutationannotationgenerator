@@ -144,10 +144,13 @@ public class PAMAnnotationGenerator extends SequenceAnnotationGenerator {
                 snpAnnotations.add(snp);
             }
         }
+            */
 
+        // troubleshooting, returning empty list for now
+        List<List<SequenceAnnotation>> emptyList = new ArrayList<>();
         // for method signature
-        return Arrays.asList(snpAnnotations);
-        */
+        return emptyList;
+    
 
         
     }
