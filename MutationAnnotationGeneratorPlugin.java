@@ -9,7 +9,7 @@ import com.biomatters.geneious.publicapi.plugin.SequenceAnnotationGenerator;
 public class MutationAnnotationGeneratorPlugin extends GeneiousPlugin {
     public SequenceAnnotationGenerator[] getSequenceAnnotationGenerators() {
         return new SequenceAnnotationGenerator[]{
-                new MutationAnnotationGenerator()
+                new MutationAnnotationGenerator(),
         };
     }
 
@@ -31,7 +31,7 @@ public class MutationAnnotationGeneratorPlugin extends GeneiousPlugin {
     }
 
     public String getVersion() {
-        return "0.2";
+        return "0.4";
     }
 
     public String getMinimumApiVersion() {
