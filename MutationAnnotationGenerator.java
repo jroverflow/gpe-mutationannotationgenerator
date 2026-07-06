@@ -19,7 +19,7 @@ import jebl.util.ProgressListener;
 
 /**
  * General class for MutationAnnotationGenerator
- * @author 
+ * @author Janicka Lopez
  */
 public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
