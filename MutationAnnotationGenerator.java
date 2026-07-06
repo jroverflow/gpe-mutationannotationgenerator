@@ -47,10 +47,10 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
     }
 
     public List<List<SequenceAnnotation>> generateAnnotations(
-            AnnotatedPluginDocument[] documents,
-            SequenceAnnotationGenerator.SelectionRange selectionRange,
-            ProgressListener progressListener,
-            Options options) throws DocumentOperationException {
+        AnnotatedPluginDocument[] documents,
+        SequenceAnnotationGenerator.SelectionRange selectionRange,
+        ProgressListener progressListener,
+        Options options) throws DocumentOperationException {
 
         // extract alignment doc
         SequenceAlignmentDocument alignment =
@@ -65,7 +65,6 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
             alignment.getSequence(0).getSequenceAnnotations();
 
         // separate forward and reverse annotations with their intervals
-        // each entry is [start, end]
         List<int[]> forwardIntervals = new ArrayList<>();
         List<int[]> reverseIntervals = new ArrayList<>();
 
@@ -74,8 +73,6 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
             int start = interval.getMinimumIndex();
             int end = interval.getMaximumIndex();
             SequenceAnnotationInterval.Direction direction = interval.getDirection();
-            // here, we assume isReverse to be true when the annotation points left (isDirectedLeft)
-            // this also assumes an unreversed sequence (eg. (Reversed) does not appear in sequence name)
             boolean isReverse = direction.isDirectedLeft();
 
             if (isReverse) {
@@ -101,15 +98,19 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
         // filter mutations to query coverage region
         List<Mutation> filteredMutations = new ArrayList<>();
         for (Mutation m : mutations) {
-            int pos = m.getPosition() - 1; // 0-based
+            int pos = m.getPosition() - 1; // convert to 0-based
             if (pos >= queryStart && pos <= queryEnd) {
                 filteredMutations.add(m);
             }
         }
 
-        // compile forward annotations
+        // compile annotations
         List<SequenceAnnotation> mutationAnnotations = new ArrayList<>();
         for (Mutation m : filteredMutations) {
+
+            // skip indels for now - future iteration
+            if (m.getRefBase().equals("-") || m.getAltBase().equals("-")) continue;
+
             int pos = m.getPosition() - 1; // 0-based
 
             // check if mutation falls within a forward interval
@@ -120,6 +121,7 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
                     break;
                 }
             }
+
             // check if mutation falls within a reverse interval
             boolean inReverse = false;
             for (int[] interval : reverseIntervals) {
@@ -134,12 +136,10 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
             SequenceAnnotationInterval position;
             if (inReverse) {
-                // reverse strand interval
                 position = new SequenceAnnotationInterval(
                     m.getPosition() + 1,
                     m.getPosition());
             } else {
-                // forward strand interval
                 position = new SequenceAnnotationInterval(
                     m.getPosition(),
                     m.getPosition());
@@ -150,7 +150,6 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
                 SequenceAnnotation.TYPE_POLYMORPHISM,
                 position);
 
-            // optional qualifiers added
             annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_CHANGE,
                 m.getDescription());
             annotation.addQualifier(SequenceAnnotationQualifier.VARIANT_NUCLEOTIDES,
@@ -161,7 +160,7 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
             mutationAnnotations.add(annotation);
         }
 
-        // must return two lists for method to work 
+        // must return two lists for method to work
         List<SequenceAnnotation> emptyList = new ArrayList<>();
         return Arrays.asList(emptyList, mutationAnnotations);
     }

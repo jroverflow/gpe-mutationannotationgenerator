@@ -10,7 +10,6 @@ public class MutationAnnotationGeneratorPlugin extends GeneiousPlugin {
     public SequenceAnnotationGenerator[] getSequenceAnnotationGenerators() {
         return new SequenceAnnotationGenerator[]{
                 new MutationAnnotationGenerator(),
-                new PAMAnnotationGenerator()
         };
     }
 
