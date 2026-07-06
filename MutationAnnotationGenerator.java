@@ -98,18 +98,8 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
         // detect SNPs on full sequences
         List<Mutation> mutations = MutationDetector.detectSNPs(refAligned, queryAligned);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("queryStart=").append(queryStart).append("\n");
-        for (int i = 0; i < Math.min(5, mutations.size()); i++) {
-            Mutation m = mutations.get(i);
-            sb.append("pos=").append(m.getPosition())
-            .append(" ref=").append(m.getRefBase())
-            .append(" alt=").append(m.getAltBase()).append("\n");
-        }
-        throw new DocumentOperationException(sb.toString());
-
         // filter mutations to query coverage region
-        /* List<Mutation> filteredMutations = new ArrayList<>();
+        List<Mutation> filteredMutations = new ArrayList<>();
         for (Mutation m : mutations) {
             int pos = m.getPosition() - 1; // 0-based
             if (pos >= queryStart && pos <= queryEnd) {
@@ -173,6 +163,6 @@ public class MutationAnnotationGenerator extends SequenceAnnotationGenerator {
 
         // must return two lists for method to work 
         List<SequenceAnnotation> emptyList = new ArrayList<>();
-        return Arrays.asList(emptyList, mutationAnnotations); */
+        return Arrays.asList(emptyList, mutationAnnotations);
     }
 }
