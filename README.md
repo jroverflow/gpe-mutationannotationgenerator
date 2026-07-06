@@ -1,18 +1,18 @@
 # Mutation Annotation Generator
-Simple Geneious Prime Extension automatically creating SNP annotations
+Simple Geneious Prime Extension automatically creating SNP annotations. 
 
 ## Download
 
 | Version | Release Date |
 |---|---|
-|[0.3](https://github.com/jroverflow/gpe-mutationannotationgenerator/releases/tag/0.3_Release) | May 17, 2026 |
-| [0.2](https://github.com/jroverflow/gpe-mutationannotationgenerator/releases/download/Releases/MutationAnnotationGenerator.gplugin) | May 6,2026 |
+|[0.4](https://github.com/jroverflow/gpe-mutationannotationgenerator/releases/tag/0.4_Release) | July 5, 2026
+
 
 Keep up to date with updates with the [updates log](CHANGELOG.md)
 
 ## Installation to Geneious
 
-This tool will typically appear as "Find SNPs" under the "Annotate & Predict" tab of Geneious Prime, unless otherwise noted via installation
+This tool will appear as "Find SNPs" under the "Annotate & Predict" tab of Geneious Prime
 
 1. In Geneious Prime, navigate to the "Tools" window
 2. Click "Plugin"
@@ -36,6 +36,13 @@ This tool works on contigs that are mapped to reference (eg. a NGS GenBank seque
 3. If successful, message "Found *n* results" will be displayed
 4. Click "Save"
 5. (Optional) A pop-up asking to apply changes to the original sequence will appear, select "Yes" to transfer these changes
+
+#### Important Things to Note:
+
+This tool assumes a few things: 
+- Annotated regions on the sequence are the areas of interest; unannotated regions will not be accounted for
+- User has thoroughly annotated sequence(s)
+- Alignment given to tool are not reversed, or aligned to mismatching sequence(s)
 
 
 
