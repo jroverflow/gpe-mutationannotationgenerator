@@ -1,4 +1,4 @@
-package com.biomatters.exampleSequenceAnnotationGeneratorPlugin;
+package com.jroverflow.mutationAnnotationGenerator;
 
 public class Mutation {
     // data fields

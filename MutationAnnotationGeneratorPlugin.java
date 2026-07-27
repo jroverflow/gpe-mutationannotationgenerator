@@ -1,4 +1,4 @@
-package com.biomatters.exampleSequenceAnnotationGeneratorPlugin;
+package com.jroverflow.mutationAnnotationGenerator;
 
 import com.biomatters.geneious.publicapi.plugin.GeneiousPlugin;
 import com.biomatters.geneious.publicapi.plugin.SequenceAnnotationGenerator;
